@@ -61,7 +61,14 @@
                     <span class="relative z-0 inline-flex shadow-sm">
                         <span>
                             <!-- Previous Page Link -->
-                            <button type="button" onclick="previousPage()" class="relative inline-flex items-center px-2 py-2 text-sm font-medium leading-5 text-gray-500 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-l-md hover:text-gray-400 focus:z-10 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-100 active:text-gray-500" aria-label="Previous">
+                            <span id="prevDisabled" aria-disabled="true" aria-label="Previous" style="display: none;">
+                                <span class="relative inline-flex items-center px-2 py-2 text-sm font-medium leading-5 text-gray-500 bg-white border border-gray-300 cursor-default rounded-l-md" aria-hidden="true">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                            </span>
+                            <button id="prevEnabled" type="button" onclick="previousPage()" class="relative inline-flex items-center px-2 py-2 text-sm font-medium leading-5 text-gray-500 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-l-md hover:text-gray-400 focus:z-10 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-100 active:text-gray-500" aria-label="Previous">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                                 </svg>
@@ -146,20 +153,17 @@
             });
 
             // Update previous/next button states
-            const prevButtons = document.querySelectorAll('[onclick="previousPage()"]');
+            const prevDisabled = document.getElementById('prevDisabled');
+            const prevEnabled = document.getElementById('prevEnabled');
             const nextButtons = document.querySelectorAll('[onclick="nextPage()"]');
 
-            prevButtons.forEach(button => {
-                if (currentPage === 1) {
-                    button.disabled = true;
-                    button.classList.add('text-gray-500', 'cursor-default');
-                    button.classList.remove('text-gray-700', 'hover:text-gray-500');
-                } else {
-                    button.disabled = false;
-                    button.classList.remove('text-gray-500', 'cursor-default');
-                    button.classList.add('text-gray-700', 'hover:text-gray-500');
-                }
-            });
+            if (currentPage === 1) {
+                prevDisabled.style.display = 'inline-flex';
+                prevEnabled.style.display = 'none';
+            } else {
+                prevDisabled.style.display = 'none';
+                prevEnabled.style.display = 'inline-flex';
+            }
 
             nextButtons.forEach(button => {
                 if (currentPage === totalPages) {
