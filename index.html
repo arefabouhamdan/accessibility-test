@@ -38,8 +38,37 @@
 </head>
 <body class="bg-gray-50 p-8">
     <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Static Pagination Example</h1>
+        
+        <!-- Sample content to demonstrate pagination -->
+        <div class="bg-white rounded-lg shadow p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Sample Data</h2>
+            <div class="space-y-2">
+                <div class="p-3 bg-gray-50 rounded">Item 1 - Sample content</div>
+                <div class="p-3 bg-gray-50 rounded">Item 2 - Sample content</div>
+                <div class="p-3 bg-gray-50 rounded">Item 3 - Sample content</div>
+                <div class="p-3 bg-gray-50 rounded">Item 4 - Sample content</div>
+                <div class="p-3 bg-gray-50 rounded">Item 5 - Sample content</div>
+            </div>
+        </div>
+
         <!-- Pagination Component -->
         <nav role="navigation" aria-label="Pagination Navigation" class="flex items-center justify-between pb-20">
+            <!-- Mobile Pagination -->
+            <div class="flex justify-between flex-1 lg:hidden">
+                <span>
+                    <button type="button" onclick="previousPage()" class="relative inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md hover:text-gray-500 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 active:bg-gray-100 active:text-gray-700">
+                        Previous
+                    </button>
+                </span>
+
+                <span>
+                    <button type="button" onclick="nextPage()" class="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md hover:text-gray-500 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 active:bg-gray-100 active:text-gray-700">
+                        Next
+                    </button>
+                </span>
+            </div>
+
             <!-- Desktop Pagination -->
             <div class="hidden lg:flex-1 lg:flex lg:items-center lg:justify-between">
                 <div>
@@ -105,8 +134,14 @@
                 </div>
             </div>
         </nav>
-    </div>
-    <select class="block w-full transition duration-150 ease-in-out form-select sm:text-sm sm:leading-5">
+
+        <!-- Current Page Display -->
+        <div class="text-center mt-4">
+            <p class="text-sm text-gray-600">Current Page: <span id="currentPage" class="font-medium">1</span></p>
+        </div>
+
+
+        <select class="block w-full transition duration-150 ease-in-out form-select sm:text-sm sm:leading-5">
             <option value="">Select a page</option>
             <option value="1">1</option>
             <option value="2">2</option>
@@ -118,6 +153,93 @@
             <option value="8">8</option>
             <option value="9">9</option>
             <option value="10">10</option>
-    </select>
+        </select>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        const totalPages = 10;
+        const itemsPerPage = 10;
+        const totalItems = 100;
+
+        function updatePagination() {
+            // Update current page display
+            document.getElementById('currentPage').textContent = currentPage;
+            
+            // Update showing text
+            const firstItem = (currentPage - 1) * itemsPerPage + 1;
+            const lastItem = Math.min(currentPage * itemsPerPage, totalItems);
+            
+            document.getElementById('firstItem').textContent = firstItem;
+            document.getElementById('lastItem').textContent = lastItem;
+            document.getElementById('totalItems').textContent = totalItems;
+
+            // Update active page styling
+            const pageButtons = document.querySelectorAll('[onclick^="goToPage"]');
+            pageButtons.forEach(button => {
+                const pageNum = parseInt(button.textContent.trim());
+                if (pageNum === currentPage) {
+                    button.classList.remove('text-gray-700', 'bg-white', 'hover:text-gray-500');
+                    button.classList.add('text-white', 'bg-aaardvark-600');
+                    button.setAttribute('aria-current', 'page');
+                } else {
+                    button.classList.remove('text-white', 'bg-aaardvark-600');
+                    button.classList.add('text-gray-700', 'bg-white', 'hover:text-gray-500');
+                    button.removeAttribute('aria-current');
+                }
+            });
+
+            // Update previous/next button states
+            const prevDisabled = document.getElementById('prevDisabled');
+            const prevEnabled = document.getElementById('prevEnabled');
+            const nextButtons = document.querySelectorAll('[onclick="nextPage()"]');
+
+            if (currentPage === 1) {
+                prevDisabled.style.display = 'inline-flex';
+                prevEnabled.style.display = 'none';
+            } else {
+                prevDisabled.style.display = 'none';
+                prevEnabled.style.display = 'inline-flex';
+            }
+
+            nextButtons.forEach(button => {
+                if (currentPage === totalPages) {
+                    button.disabled = true;
+                    button.classList.add('text-gray-500', 'cursor-default');
+                    button.classList.remove('text-gray-700', 'hover:text-gray-500');
+                } else {
+                    button.disabled = false;
+                    button.classList.remove('text-gray-500', 'cursor-default');
+                    button.classList.add('text-gray-700', 'hover:text-gray-500');
+                }
+            });
+        }
+
+        function goToPage(page) {
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                updatePagination();
+            }
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                updatePagination();
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                updatePagination();
+            }
+        }
+
+        // Initialize pagination on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePagination();
+        });
+    </script>
 </body>
 </html>
