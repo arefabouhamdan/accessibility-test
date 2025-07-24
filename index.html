@@ -12,13 +12,8 @@
         .focus\:border-aaardvark-600:focus {
             border-color: #2563eb;
         }
-        .select-container {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-        }
         
-        .select-container::after {
+        .form-select::after {
             content: '';
             position: absolute;
             right: 0.75rem;
@@ -154,21 +149,19 @@
                 <p class="text-sm text-gray-600">Current Page: <span id="currentPage" class="font-medium">1</span></p>
             </div>
             <label for="mySelect" class="sr-only">Choose an option:</label>
-            <div class="select-container">
-                <select id="mySelect" aria-label="Select option" class="block w-full transition duration-150 ease-in-out form-select sm:text-sm sm:leading-5">
-                    <option value="">Select a page</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                </select>
-            </div>
+            <select id="mySelect" aria-label="Select option" class="block w-full transition duration-150 ease-in-out form-select sm:text-sm sm:leading-5">
+                <option value="">Select a page</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+            </select>
         </div>
     </main>
 
