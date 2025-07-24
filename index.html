@@ -13,30 +13,31 @@
             border-color: #2563eb;
         }
 
-        .form-select {
-            --select-bg-color: #ffffff;
-            --select-text-color: #000000;
-            --select-border-color: #e2e8f0;
-            background-color: var(--select-bg-color);
-            color: var(--select-text-color);
-            border-color: var(--select-border-color);
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a0aec0'%3e%3cpath d='M15.3 9.3a1 1 0 0 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 1.4-1.4l3.3 3.29 3.3-3.3z'/%3e%3c/svg%3e");
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            -webkit-print-color-adjust: exact;
-            color-adjust: exact;
-            background-repeat: no-repeat;
+        .select-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .form-select-clean {
+            background-color: #fff;
+            border-color: #e2e8f0;
             border-width: 1px;
             border-radius: 0.25rem;
-            padding-top: 0.5rem;
-            padding-right: 2.5rem;
-            padding-bottom: 0.5rem;
-            padding-left: 0.75rem;
+            padding: 0.5rem 2.5rem 0.5rem 0.75rem;
             font-size: 1rem;
             line-height: 1.5;
-            background-position: right 0.5rem center;
-            background-size: 1.5em 1.5em;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        .select-arrow {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1.5em;
+            height: 1.5em;
+            pointer-events: none;
         }
         
 
@@ -143,20 +144,26 @@
             </div>
             <label for="mySelect" class="sr-only">Choose an option:</label>
             <!-- pa11y-ignore WCAG2AA.Principle1.Guideline1_4.1_4_3.G18.Fail -->
-            <select data-contrast-bg="#ffffff" 
-            data-contrast-fg="#000000" id="mySelect" aria-label="Select option" class="block w-full transition duration-150 ease-in-out form-select sm:text-sm sm:leading-5">
-                <option value="">Select a page</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-            </select>
+            
+            <div class="select-container">
+                <select id="mySelect" aria-label="Select option" class="block w-full transition duration-150 ease-in-out form-select-clean sm:text-sm sm:leading-5">
+                    <option value="">Select a page</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                </select>
+                <img src="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a0aec0'%3e%3cpath d='M15.3 9.3a1 1 0 0 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 1.4-1.4l3.3 3.29 3.3-3.3z'/%3e%3c/svg%3e" 
+                     alt="" 
+                     aria-hidden="true" 
+                     class="select-arrow">
+            </div>
         </div>
     </main>
 
