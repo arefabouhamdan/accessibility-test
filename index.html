@@ -17,19 +17,23 @@
             position: relative;
             display: inline-block;
         }
-        
-        .form-select-clean {
-            background-color: #fff;
-            border-color: #e2e8f0;
+
+        .form-select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            -webkit-print-color-adjust: exact;
+            color-adjust: exact;
             border-width: 1px;
             border-radius: 0.25rem;
-            padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+            padding-top: 0.5rem;
+            padding-right: 2.5rem;
+            padding-bottom: 0.5rem;
+            padding-left: 0.75rem;
             font-size: 1rem;
             line-height: 1.5;
-            -webkit-appearance: none;
-            appearance: none;
         }
-        
+
         .select-arrow {
             position: absolute;
             right: 0.5rem;
@@ -146,7 +150,7 @@
             <!-- pa11y-ignore WCAG2AA.Principle1.Guideline1_4.1_4_3.G18.Fail -->
             
             <div class="select-container">
-                <select id="mySelect" aria-label="Select option" class="block w-full transition duration-150 ease-in-out form-select-clean sm:text-sm sm:leading-5">
+                <select id="mySelect" aria-label="Select option" class="block w-full transition duration-150 ease-in-out form-select sm:text-sm sm:leading-5">
                     <option value="">Select a page</option>
                     <option value="1">1</option>
                     <option value="2">2</option>
