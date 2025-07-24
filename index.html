@@ -13,22 +13,20 @@
             border-color: #2563eb;
         }
 
-        form-select {
+        .form-select {
             --select-bg-color: #ffffff;
             --select-text-color: #000000;
             --select-border-color: #e2e8f0;
             background-color: var(--select-bg-color);
             color: var(--select-text-color);
             border-color: var(--select-border-color);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a0aec0'%3e%3cpath d='M15.3 9.3a1 1 0 0 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 1.4-1.4l3.3 3.29 3.3-3.3z'/%3e%3c/svg%3e");
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
             -webkit-print-color-adjust: exact;
             color-adjust: exact;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a0aec0'%3e%3cpath d='M15.3 9.3a1 1 0 0 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 1.4-1.4l3.3 3.29 3.3-3.3z'/%3e%3c/svg%3e");
             background-repeat: no-repeat;
-            background-position: right 0.5rem center;
-            background-size: 1.5em 1.5em;
             border-width: 1px;
             border-radius: 0.25rem;
             padding-top: 0.5rem;
@@ -37,14 +35,8 @@
             padding-left: 0.75rem;
             font-size: 1rem;
             line-height: 1.5;
-        }
-
-        @media (prefers-contrast: high) {
-            .form-select {
-                background-color: white;
-                color: black;
-                border-color: black;
-            }
+            background-position: right 0.5rem center;
+            background-size: 1.5em 1.5em;
         }
         
 
