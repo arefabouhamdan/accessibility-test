@@ -2,421 +2,220 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Accessible Tabs (Alpine + Tailwind + daisyUI)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.12/dist/full.min.css" rel="stylesheet" type="text/css" />
-  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <style>[x-cloak]{display:none !important}</style>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Accessibility Report (Static)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="description" content="Static demo of an accessibility issue detail page with instances, tabs, and pagination." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    html, body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji"; }
+  </style>
+  <meta name="robots" content="noindex" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="color-scheme" content="light dark" />
 </head>
-<body class="bg-gray-50 p-8">
-  <main class="max-w-5xl mx-auto">
-    <h2 id="issueHeader" class="text-2xl font-semibold text-gray-900">Issue details</h2>
+<body class="bg-gray-50 text-gray-900 antialiased">
+  <main class="max-w-6xl mx-auto p-6">
+    <section id="issueHeader" class="bg-white rounded-lg shadow p-6">
+      <h1 class="text-xl font-semibold">Issue Instances</h1>
 
-    <div x-data="issueTabsComponent({ defaultTab: 'active_instances' })" x-init="initFromHash()" class="mt-6">
-      <!-- Tabs Navigation -->
-      <div class="tabs tabs-boxed w-full" role="tablist" aria-labelledby="issueHeader">
-        <a :id="'tab-active_instances'" role="tab" :aria-controls="'tabpanel-active_instances'" :aria-selected="activeTab === 'active_instances'" :tabindex="activeTab === 'active_instances' ? 0 : -1" href="#active_instances" @click.prevent="activate('active_instances')" class="tab flex items-center gap-2" :class="activeTab === 'active_instances' ? 'tab-active' : ''">
-          <span>Active</span>
-          <span class="badge badge-sm" x-text="counts.active"></span>
-        </a>
-        <a :id="'tab-ignored_instances'" role="tab" :aria-controls="'tabpanel-ignored_instances'" :aria-selected="activeTab === 'ignored_instances'" :tabindex="activeTab === 'ignored_instances' ? 0 : -1" href="#ignored_instances" @click.prevent="activate('ignored_instances')" class="tab flex items-center gap-2" :class="activeTab === 'ignored_instances' ? 'tab-active' : ''">
-          <span>Ignored</span>
-          <span class="badge badge-sm" x-text="counts.ignored"></span>
-        </a>
-        <a :id="'tab-pending_instances'" role="tab" :aria-controls="'tabpanel-pending_instances'" :aria-selected="activeTab === 'pending_instances'" :tabindex="activeTab === 'pending_instances' ? 0 : -1" href="#pending_instances" @click.prevent="activate('pending_instances')" class="tab flex items-center gap-2" :class="activeTab === 'pending_instances' ? 'tab-active' : ''">
-          <span>Pending Review</span>
-          <span class="badge badge-sm" x-text="counts.pending"></span>
-        </a>
-        <a :id="'tab-fixed_instances'" role="tab" :aria-controls="'tabpanel-fixed_instances'" :aria-selected="activeTab === 'fixed_instances'" :tabindex="activeTab === 'fixed_instances' ? 0 : -1" href="#fixed_instances" @click.prevent="activate('fixed_instances')" class="tab flex items-center gap-2" :class="activeTab === 'fixed_instances' ? 'tab-active' : ''">
-          <span>Fixed</span>
-          <span class="badge badge-sm" x-text="counts.fixed"></span>
-        </a>
-        <a :id="'tab-comments'" role="tab" :aria-controls="'tabpanel-comments'" :aria-selected="activeTab === 'comments'" :tabindex="activeTab === 'comments' ? 0 : -1" href="#comments" @click.prevent="activate('comments')" class="tab" :class="activeTab === 'comments' ? 'tab-active' : ''">
-          Comments
-        </a>
-      </div>
-
-      <div class="py-4" @hashchange.window="onHashChange()">
-        <!-- Active Instances Panel -->
-        <div id="tabpanel-active_instances" x-cloak role="tabpanel" aria-labelledby="tab-active_instances" x-show="activeTab === 'active_instances'">
-          <template x-if="counts.active > 0">
-            <div>
-              <div class="alert bg-blue-50 text-blue-900">
-                <div>
-                  <p class="mb-2" x-html="activeCalloutHtml"></p>
-                  <p class="mb-2">
-                    <span class="bg-yellow-100 text-yellow-900 rounded-full py-1 px-3 text-sm">Needs Manual Review</span>
-                    items should be reviewed manually to determine if action is needed.
-                  </p>
-                  <p>Once all instances have been confirmed as fixed or ignored, the issue will be resolved.</p>
-                </div>
-              </div>
-              <hr class="w-1/2 mx-auto my-4" />
-
-              <template x-if="activeInstances.length > 0">
-                <div>
-                  <!-- Bulk actions -->
-                  <div class="flex flex-wrap items-center gap-2 mb-4">
-                    <button class="btn btn-sm" @click="toggleSelectAll('active')" x-text="allSelected('active') ? 'Unselect all' : 'Select all'"></button>
-                    <button class="btn btn-sm btn-success" @click="markSelectedAsFixed('active')">Mark as fixed</button>
-                    <button class="btn btn-sm btn-warning" @click="ignoreSelected('active')">Ignore</button>
-                    <span class="text-sm text-gray-600" x-text="selectedInstances.length + ' selected'"></span>
-                  </div>
-
-                  <!-- Instances list -->
-                  <template x-for="instance in activeInstances" :key="'instance-' + instance.id">
-                    <div class="card bg-white shadow-sm border border-gray-200 mb-3">
-                      <div class="card-body flex items-start gap-3">
-                        <input type="checkbox" class="checkbox checkbox-sm mt-1" :value="instance.id" @change="toggleSelect(instance.id)" :checked="selectedInstances.includes(instance.id)" />
-                        <div class="flex-1">
-                          <h3 class="font-medium text-gray-900" x-text="instance.title"></h3>
-                          <p class="text-sm text-gray-600" x-text="instance.path"></p>
+      <div class="flex flex-wrap items-center gap-3 mt-4 mb-6">
+        <div class="relative w-full sm:w-80">
+                        <input
+                            type="search"
+                            id="search-instances"
+            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Search for instances..."
+            aria-label="Search for instances"
+          />
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3" aria-hidden="true">
+            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 3.5a7.5 7.5 0 0013.15 13.15z" />
+            </svg>
                         </div>
-                        <div class="text-sm text-gray-500" x-text="instance.severity"></div>
-                      </div>
                     </div>
-                  </template>
 
-                  <div class="mt-4 flex justify-center">
-                    <button class="btn btn-ghost btn-sm">Previous</button>
-                    <button class="btn btn-ghost btn-sm">Next</button>
-                  </div>
-                </div>
-              </template>
+        <details class="ml-auto w-full sm:w-64" aria-label="Filters">
+          <summary class="flex cursor-pointer list-none items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700">
+            <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M6.75 12h10.5m-7.5 5.25h4.5" />
+            </svg>
+            <span class="ml-2">Filter instances</span>
+            <span class="ml-auto inline-flex h-2 w-2 rounded-full bg-blue-600" aria-hidden="true"></span>
+            <svg class="ml-2 h-4 w-4 text-gray-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z" clip-rule="evenodd" />
+            </svg>
+          </summary>
+
+          <div class="mt-2 w-full rounded-md border border-gray-300 bg-white shadow">
+            <div class="border-t border-b">
+              <div class="flex flex-col px-4 py-2 text-gray-700">
+                <label class="flex items-center gap-2 rounded px-2 py-2 text-sm">
+                  <input type="radio" name="manual_review" disabled aria-disabled="true" class="h-4 w-4 cursor-not-allowed opacity-60" />
+                  <span>Needs Review</span>
+                </label>
+                <label class="flex items-center gap-2 rounded px-2 py-2 text-sm">
+                  <input type="radio" name="manual_review" disabled aria-disabled="true" class="h-4 w-4 cursor-not-allowed opacity-60" />
+                  <span>Doesn't Need Review</span>
+                </label>
+                <label class="flex items-center gap-2 rounded px-2 py-2 text-sm">
+                  <input type="radio" name="manual_review" checked disabled aria-disabled="true" class="h-4 w-4 cursor-not-allowed opacity-60" />
+                  <span>Show All</span>
+                </label>
+              </div>
             </div>
-          </template>
 
-          <template x-if="counts.active === 0">
-            <p class="text-center">There are no active instances.</p>
-          </template>
-        </div>
+            <p class="px-4 pt-3 text-sm font-semibold text-gray-800">Pages</p>
+            <div class="px-4 py-2">
+              <input
+                type="search"
+                name="search"
+                id="search-pages"
+                placeholder="Search"
+                aria-label="Search pages"
+                disabled
+                class="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm placeholder-gray-400 opacity-60 cursor-not-allowed"
+              />
+            </div>
 
-        <!-- Ignored Instances Panel -->
-        <div id="tabpanel-ignored_instances" x-cloak role="tabpanel" aria-labelledby="tab-ignored_instances" x-show="activeTab === 'ignored_instances'">
-          <div class="alert bg-blue-50 text-blue-900">
-            <p>These instances will be ignored when seen in a scan. If all instances are ignored, the issue is considered resolved.</p>
+            <div class="max-h-48 overflow-y-auto">
+              <div class="px-4 py-2">
+                <label class="inline-flex w-full items-center gap-2 text-sm">
+                  <input type="checkbox" disabled aria-disabled="true" checked class="h-4 w-4 cursor-not-allowed rounded border-gray-300 opacity-60" />
+                  <span class="text-gray-700">All pages</span>
+                </label>
+              </div>
+
+              <div class="px-4 py-2">
+                <label class="inline-flex w-full items-center gap-2 text-sm">
+                  <input type="checkbox" disabled aria-disabled="true" class="h-4 w-4 cursor-not-allowed rounded border-gray-300 opacity-60" />
+                  <span class="text-gray-600">/products/espresso-maker</span>
+                </label>
+              </div>
+              <div class="px-4 py-2">
+                <label class="inline-flex w-full items-center gap-2 text-sm">
+                  <input type="checkbox" disabled aria-disabled="true" class="h-4 w-4 cursor-not-allowed rounded border-gray-300 opacity-60" />
+                  <span class="text-gray-600">/checkout</span>
+                </label>
+              </div>
+              <div class="px-4 py-2">
+                <label class="inline-flex w-full items-center gap-2 text-sm">
+                  <input type="checkbox" disabled aria-disabled="true" class="h-4 w-4 cursor-not-allowed rounded border-gray-300 opacity-60" />
+                  <span class="text-gray-600">/contact</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between border-t px-4 py-3">
+              <button class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-500 opacity-60 cursor-not-allowed" disabled aria-disabled="true">Clear</button>
+              <button class="rounded-md bg-blue-600 px-3 py-2 text-sm text-white opacity-60 cursor-not-allowed" disabled aria-disabled="true">See Results</button>
+            </div>
           </div>
-          <hr class="w-1/2 mx-auto my-4" />
-
-          <template x-if="ignoredInstances.length > 0">
-            <div>
-              <div class="flex flex-wrap items-center gap-2 mb-4">
-                <button class="btn btn-sm" @click="toggleSelectAll('ignored')" x-text="allSelected('ignored') ? 'Unselect all' : 'Select all'"></button>
-                <button class="btn btn-sm btn-success" @click="markSelectedAsFixed('ignored')">Mark as fixed</button>
-                <button class="btn btn-sm btn-neutral" @click="unignoreSelected()">Unignore</button>
-                <span class="text-sm text-gray-600" x-text="selectedInstances.length + ' selected'"></span>
-              </div>
-
-              <template x-for="instance in ignoredInstances" :key="'ignored-instance-' + instance.id">
-                <div class="card bg-white shadow-sm border border-gray-200 mb-3">
-                  <div class="card-body flex items-start gap-3">
-                    <input type="checkbox" class="checkbox checkbox-sm mt-1" :value="instance.id" @change="toggleSelect(instance.id)" :checked="selectedInstances.includes(instance.id)" />
-                    <div class="flex-1">
-                      <h3 class="font-medium text-gray-900" x-text="instance.title"></h3>
-                      <p class="text-sm text-gray-600" x-text="instance.path"></p>
+        </details>
                     </div>
-                    <div class="text-sm text-gray-500" x-text="instance.severity"></div>
-                  </div>
-                </div>
-              </template>
 
-              <div class="mt-4 flex justify-center">
-                <button class="btn btn-ghost btn-sm">Previous</button>
-                <button class="btn btn-ghost btn-sm">Next</button>
-              </div>
-            </div>
-          </template>
+      <nav class="border-b" aria-label="Tabs">
+        <ul class="-mb-px flex flex-wrap gap-1" role="tablist">
+          <li>
+            <a href="#active" class="inline-flex items-center gap-2 border-b-2 border-blue-600 px-3 py-2 text-sm font-medium text-blue-700" aria-current="page" role="tab">Active Instances</a>
+          </li>
+          <li><span class="inline-flex items-center gap-2 border-b-2 border-transparent px-3 py-2 text-sm text-gray-600">Ignored</span></li>
+          <li><span class="inline-flex items-center gap-2 border-b-2 border-transparent px-3 py-2 text-sm text-gray-600">Pending Review</span></li>
+          <li><span class="inline-flex items-center gap-2 border-b-2 border-transparent px-3 py-2 text-sm text-gray-600">Fixed</span></li>
+          <li><span class="inline-flex items-center gap-2 border-b-2 border-transparent px-3 py-2 text-sm text-gray-600">Comments</span></li>
+        </ul>
+      </nav>
 
-          <template x-if="ignoredInstances.length === 0">
-            <p class="text-center">There are no ignored instances.</p>
-          </template>
+      <section id="active" class="pt-4" aria-labelledby="tab-active">
+        <div class="rounded-md bg-blue-50 p-4 text-sm text-blue-900">
+          <p>
+            We found <strong>3</strong> active instances of this issue across your site. Issues marked
+            <span class="rounded-full bg-yellow-100 px-2 py-0.5 text-yellow-900">Needs Manual Review</span>
+            should be reviewed manually.
+          </p>
+          <p class="mt-2">Once all instances are confirmed fixed or ignored, the issue will be resolved. If the exact same instance is still active in a later scan it will be <span class="rounded-full bg-red-100 px-2 py-0.5 text-red-800">Reopened</span>.</p>
         </div>
 
-        <!-- Pending Review Instances Panel -->
-        <div id="tabpanel-pending_instances" x-cloak role="tabpanel" aria-labelledby="tab-pending_instances" x-show="activeTab === 'pending_instances'">
-          <template x-if="pendingInstances.length > 0">
-            <div>
-              <div class="flex flex-wrap items-center gap-2 mb-4">
-                <button class="btn btn-sm" @click="toggleSelectAll('pending')" x-text="allSelected('pending') ? 'Unselect all' : 'Select all'"></button>
-                <button class="btn btn-sm btn-success" @click="markSelectedAsFixed('pending')">Mark as fixed</button>
-                <button class="btn btn-sm btn-warning" @click="ignoreSelected('pending')">Ignore</button>
-                <span class="text-sm text-gray-600" x-text="selectedInstances.length + ' selected'"></span>
-              </div>
+        <hr class="w-1/2 mx-auto my-6" />
 
-              <template x-for="instance in pendingInstances" :key="'pending-instance-' + instance.id">
-                <div class="card bg-white shadow-sm border border-gray-200 mb-3">
-                  <div class="card-body flex items-start gap-3">
-                    <input type="checkbox" class="checkbox checkbox-sm mt-1" :value="instance.id" @change="toggleSelect(instance.id)" :checked="selectedInstances.includes(instance.id)" />
-                    <div class="flex-1">
-                      <h3 class="font-medium text-gray-900" x-text="instance.title"></h3>
-                      <p class="text-sm text-gray-600" x-text="instance.path"></p>
-                    </div>
-                    <div class="text-sm text-gray-500" x-text="instance.severity"></div>
-                  </div>
-                </div>
-              </template>
+        <div class="space-y-4" aria-live="off">
+          <!-- Instance Card 1 -->
+          <article class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm" aria-labelledby="inst-101-title">
+            <div class="flex items-start justify-between gap-4">
+                                <div>
+                <h2 id="inst-101-title" class="text-base font-semibold">Instance #101 — Image missing alt text</h2>
+                <p class="mt-1 text-sm text-gray-600">Page: <span class="font-medium text-gray-800">/products/espresso-maker</span></p>
+                <p class="mt-1 text-sm text-gray-600">Selector: <code class="rounded bg-gray-100 px-1 py-0.5">.gallery img:nth-child(1)</code></p>
+                                        </div>
+              <span class="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-900">Needs Manual Review</span>
+                                </div>
+            <div class="mt-3 rounded bg-gray-50 p-3 text-sm text-gray-700">
+              <p>Found image without an alt attribute. Provide a concise, descriptive alternative text.</p>
+                        </div>
+            <div class="mt-3 flex flex-wrap gap-4 text-xs text-gray-500">
+              <span>First seen: 2025-07-12</span>
+              <span>Last seen: 2025-08-08</span>
+              <span>WCAG: 1.1.1 (Non-text Content)</span>
+                                </div>
+          </article>
 
-              <div class="mt-4 flex justify-center">
-                <button class="btn btn-ghost btn-sm">Previous</button>
-                <button class="btn btn-ghost btn-sm">Next</button>
-              </div>
-            </div>
-          </template>
-          <template x-if="pendingInstances.length === 0">
-            <p class="text-center">There are no pending review instances.</p>
-          </template>
-        </div>
-
-        <!-- Fixed Instances Panel -->
-        <div id="tabpanel-fixed_instances" x-cloak role="tabpanel" aria-labelledby="tab-fixed_instances" x-show="activeTab === 'fixed_instances'">
-          <template x-if="fixedInstances.length > 0">
-            <div>
-              <template x-for="instance in fixedInstances" :key="'fixed-instance-' + instance.id">
-                <div class="card bg-white shadow-sm border border-gray-200 mb-3">
-                  <div class="card-body">
-                    <h3 class="font-medium text-gray-900" x-text="instance.title"></h3>
-                    <p class="text-sm text-gray-600" x-text="instance.path"></p>
-                    <span class="badge badge-success">Fixed</span>
-                  </div>
-                </div>
-              </template>
-              <div class="mt-4 flex justify-center">
-                <button class="btn btn-ghost btn-sm">Previous</button>
-                <button class="btn btn-ghost btn-sm">Next</button>
-              </div>
-            </div>
-          </template>
-          <template x-if="fixedInstances.length === 0">
-            <p class="text-center">There are no fixed instances.</p>
-          </template>
-        </div>
-
-        <!-- Comments Panel -->
-        <div id="tabpanel-comments" x-cloak role="tabpanel" aria-labelledby="tab-comments" x-show="activeTab === 'comments'">
-          <template x-if="firstComment">
-            <div class="mb-6">
-              <div class="card bg-white border border-gray-200 shadow-sm">
-                <div class="card-body">
-                  <div class="flex items-center justify-between">
-                    <div class="font-medium" x-text="firstComment.user ?? 'Deleted Account'"></div>
-                    <div class="text-xs text-gray-500" x-text="firstComment.timestamp"></div>
-                  </div>
-                  <p class="mt-2 text-gray-700" x-text="firstComment.body"></p>
-                </div>
-              </div>
-              <div class="py-4">
-                <div class="flex items-center justify-center gap-2">
-                  <a href="#" class="btn btn-circle btn-outline btn-sm" @click.prevent="showAllComments = true" :title="'Load ' + (comments.length - initialCommentsToShow - 1) + ' older comments.'">
-                    <span x-text="comments.length - initialCommentsToShow - 1"></span>
-                  </a>
-                  <hr class="w-6" />
-                  <a href="#" class="link" @click.prevent="showAllComments = true" x-text="'older comments'"></a>
-                  <hr class="flex-1" />
-                </div>
-              </div>
-            </div>
-          </template>
-
-          <template x-for="comment in visibleComments" :key="'comment-'+comment.id">
-            <div class="card bg-white border border-gray-200 shadow-sm mb-4">
-              <div class="card-body">
-                <div class="flex items-center justify-between">
-                  <div class="font-medium" x-text="comment.user ?? 'Deleted Account'"></div>
-                  <div class="text-xs text-gray-500" x-text="comment.timestamp"></div>
-                </div>
-                <p class="mt-2 text-gray-700" x-text="comment.body"></p>
-              </div>
-            </div>
-          </template>
-
-          <template x-if="visibleComments.length === 0">
-            <p>No Comments</p>
-          </template>
-
-          <!-- Comment form (static demo) -->
-          <form class="card bg-white border border-gray-200 shadow-sm mt-6" @submit.prevent>
-            <div class="card-body gap-3">
-              <label class="form-control w-full">
-                <div class="label"><span class="label-text">Add a comment</span></div>
-                <textarea class="textarea textarea-bordered w-full" rows="3" placeholder="Type here..."></textarea>
-              </label>
+          <!-- Instance Card 2 -->
+          <article class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm" aria-labelledby="inst-102-title">
+            <div class="flex items-start justify-between gap-4">
               <div>
-                <button class="btn btn-primary btn-sm" type="button">Submit</button>
-              </div>
-            </div>
-          </form>
+                <h2 id="inst-102-title" class="text-base font-semibold">Instance #102 — Insufficient color contrast</h2>
+                <p class="mt-1 text-sm text-gray-600">Page: <span class="font-medium text-gray-800">/checkout</span></p>
+                <p class="mt-1 text-sm text-gray-600">Selector: <code class="rounded bg-gray-100 px-1 py-0.5">button.primary</code></p>
+                                </div>
+              <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">Reopened</span>
+                        </div>
+            <div class="mt-3 rounded bg-gray-50 p-3 text-sm text-gray-700">
+              <p>Text and background color combination fails contrast ratio. Aim for at least 4.5:1 for normal text.</p>
+                                </div>
+            <div class="mt-3 flex flex-wrap gap-4 text-xs text-gray-500">
+              <span>First seen: 2025-06-30</span>
+              <span>Last seen: 2025-08-09</span>
+              <span>WCAG: 1.4.3 (Contrast Minimum)</span>
+                        </div>
+          </article>
+
+          <!-- Instance Card 3 -->
+          <article class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm" aria-labelledby="inst-103-title">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h2 id="inst-103-title" class="text-base font-semibold">Instance #103 — Form input without label</h2>
+                <p class="mt-1 text-sm text-gray-600">Page: <span class="font-medium text-gray-800">/contact</span></p>
+                <p class="mt-1 text-sm text-gray-600">Selector: <code class="rounded bg-gray-100 px-1 py-0.5">#email</code></p>
+                                        </div>
+              <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-800">Active</span>
+                                    </div>
+            <div class="mt-3 rounded bg-gray-50 p-3 text-sm text-gray-700">
+              <p>Form control is missing a programmatically associated label. Use <code class="rounded bg-gray-100 px-1 py-0.5">label[for]</code> or <code class="rounded bg-gray-100 px-1 py-0.5">aria-label</code>.</p>
+                                </div>
+            <div class="mt-3 flex flex-wrap gap-4 text-xs text-gray-500">
+              <span>First seen: 2025-07-01</span>
+              <span>Last seen: 2025-08-10</span>
+              <span>WCAG: 1.3.1 (Info and Relationships)</span>
+                        </div>
+          </article>
         </div>
-      </div>
-    </div>
-  </main>
 
-  <script>
-    function issueTabsComponent({ defaultTab = 'active_instances' } = {}) {
-      return {
-        activeTab: defaultTab,
-        selectedInstances: [],
-        initialCommentsToShow: 2,
-        showAllComments: false,
-
-        // Mock data mirroring the Blade example semantics
-        activeInstances: [
-          { id: 1, title: 'Image missing alt attribute', path: '/about', severity: 'High' },
-          { id: 2, title: 'Low color contrast on button', path: '/pricing', severity: 'Medium' },
-          { id: 3, title: 'Form input missing label', path: '/signup', severity: 'High' },
-        ],
-        ignoredInstances: [
-          { id: 11, title: 'Decorative image flagged', path: '/home', severity: 'Low' },
-        ],
-        pendingInstances: [
-          { id: 21, title: 'Keyboard focus not visible', path: '/contact', severity: 'High' },
-        ],
-        fixedInstances: [
-          { id: 31, title: 'Headings out of order', path: '/blog', severity: 'Medium' },
-        ],
-        firstComment: {
-          id: 100,
-          user: 'Alex Doe',
-          body: 'Initial note about this issue. Click to load older comments.',
-          timestamp: '2 hours ago',
-        },
-        comments: [
-          { id: 101, user: 'Jane', body: 'Checked the page, still reproducible.', timestamp: '1 hour ago' },
-          { id: 102, user: 'Sam', body: 'Added more details to the ticket.', timestamp: '45 minutes ago' },
-          { id: 103, user: 'Chris', body: 'Working on a fix now.', timestamp: '30 minutes ago' },
-        ],
-
-        get counts() {
-          return {
-            active: this.activeInstances.length,
-            ignored: this.ignoredInstances.length,
-            pending: this.pendingInstances.length,
-            fixed: this.fixedInstances.length,
-          };
-        },
-
-        get visibleComments() {
-          if (this.showAllComments) return this.comments;
-          return this.comments.slice(0, this.initialCommentsToShow);
-        },
-
-        get activeCalloutHtml() {
-          const reopened = '<span class="text-red-800 rounded-full py-1 px-3 text-sm bg-red-100">Reopened<\/span>';
-          return `We found ${this.counts.active} active instances of this issue across your site. You can flag an instance as fixed, and we will confirm during the next scan. If we see the exact same instance is still active, we'll flag it as ${reopened} for you to take another look.`;
-        },
-
-        initFromHash() {
-          const hash = window.location.hash.replace('#', '');
-          const allowed = ['active_instances','ignored_instances','pending_instances','fixed_instances','comments'];
-          if (allowed.includes(hash)) {
-            this.activeTab = hash;
-          } else {
-            this.activeTab = defaultTab;
-            history.replaceState(null, '', `#${defaultTab}`);
-          }
-        },
-
-        onHashChange() {
-          const hash = window.location.hash.replace('#', '');
-          if (hash && hash !== this.activeTab) this.activeTab = hash;
-        },
-
-        activate(tab) {
-          this.activeTab = tab;
-          if (window.location.hash !== `#${tab}`) {
-            history.replaceState(null, '', `#${tab}`);
-          }
-        },
-
-        toggleSelect(id) {
-          const idx = this.selectedInstances.indexOf(id);
-          if (idx >= 0) this.selectedInstances.splice(idx, 1);
-          else this.selectedInstances.push(id);
-        },
-
-        allSelected(scope) {
-          const ids = this.idsByScope(scope);
-          return ids.length > 0 && ids.every(id => this.selectedInstances.includes(id));
-        },
-
-        toggleSelectAll(scope) {
-          const ids = this.idsByScope(scope);
-          if (this.allSelected(scope)) {
-            this.selectedInstances = this.selectedInstances.filter(id => !ids.includes(id));
-          } else {
-            const toAdd = ids.filter(id => !this.selectedInstances.includes(id));
-            this.selectedInstances = this.selectedInstances.concat(toAdd);
-          }
-        },
-
-        idsByScope(scope) {
-          if (scope === 'active') return this.activeInstances.map(i => i.id);
-          if (scope === 'ignored') return this.ignoredInstances.map(i => i.id);
-          if (scope === 'pending') return this.pendingInstances.map(i => i.id);
-          return [];
-        },
-
-        markSelectedAsFixed(scope) {
-          const ids = this.idsByScope(scope);
-          const chosen = this.selectedInstances.filter(id => ids.includes(id));
-          if (chosen.length === 0) return;
-          const move = (from) => {
-            const moved = [];
-            from = from.filter(item => {
-              if (chosen.includes(item.id)) { moved.push(item); return false; }
-              return true;
-            });
-            return { from, moved };
-          };
-          if (scope === 'active') {
-            const res = move(this.activeInstances);
-            this.activeInstances = res.from;
-            this.fixedInstances = this.fixedInstances.concat(res.moved);
-          } else if (scope === 'ignored') {
-            const res = move(this.ignoredInstances);
-            this.ignoredInstances = res.from;
-            this.fixedInstances = this.fixedInstances.concat(res.moved);
-          } else if (scope === 'pending') {
-            const res = move(this.pendingInstances);
-            this.pendingInstances = res.from;
-            this.fixedInstances = this.fixedInstances.concat(res.moved);
-          }
-          this.selectedInstances = this.selectedInstances.filter(id => !chosen.includes(id));
-        },
-
-        ignoreSelected(scope) {
-          const ids = this.idsByScope(scope);
-          const chosen = this.selectedInstances.filter(id => ids.includes(id));
-          if (chosen.length === 0) return;
-          if (scope === 'active') {
-            const kept = [];
-            const moved = [];
-            this.activeInstances.forEach(item => (chosen.includes(item.id) ? moved.push(item) : kept.push(item)));
-            this.activeInstances = kept;
-            this.ignoredInstances = this.ignoredInstances.concat(moved);
-          } else if (scope === 'pending') {
-            const kept = [];
-            const moved = [];
-            this.pendingInstances.forEach(item => (chosen.includes(item.id) ? moved.push(item) : kept.push(item)));
-            this.pendingInstances = kept;
-            this.ignoredInstances = this.ignoredInstances.concat(moved);
-          }
-          this.selectedInstances = this.selectedInstances.filter(id => !chosen.includes(id));
-        },
-
-        unignoreSelected() {
-          const ids = this.idsByScope('ignored');
-          const chosen = this.selectedInstances.filter(id => ids.includes(id));
-          if (chosen.length === 0) return;
-          const kept = [];
-          const moved = [];
-          this.ignoredInstances.forEach(item => (chosen.includes(item.id) ? moved.push(item) : kept.push(item)));
-          this.ignoredInstances = kept;
-          this.activeInstances = this.activeInstances.concat(moved);
-          this.selectedInstances = this.selectedInstances.filter(id => !chosen.includes(id));
-        },
-      };
-    }
-  </script>
+        <!-- Static pagination -->
+        <nav class="mt-6 flex items-center justify-between" aria-label="Pagination">
+          <a href="#" class="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50" aria-disabled="true">Previous</a>
+          <ul class="flex items-center gap-1">
+            <li><a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-white bg-blue-600">1</a></li>
+            <li><a href="#" class="rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">2</a></li>
+            <li><a href="#" class="rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">3</a></li>
+            <li><span class="px-2 text-gray-500">…</span></li>
+            <li><a href="#" class="rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">8</a></li>
+          </ul>
+          <a href="#" class="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Next</a>
+        </nav>
+      </section>
+    </section>
+    </main>
 </body>
 </html>
