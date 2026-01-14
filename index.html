@@ -21,6 +21,25 @@
     <button class="px-4 py-2 bg-gray-400 text-white font-medium rounded opacity-50 cursor-not-allowed" disabled>
         Disabled Button
     </button>
+
+    <!-- WCAG2AA.Principle1.Guideline1_1.1_1_1.H67.2 - Img element marked to be ignored by Assistive Technology -->
+    <div id="menu-item-1038" class="mt-8 p-4 bg-white rounded shadow">
+      <div>
+        <a href="#">
+          <img 
+            width="36" 
+            height="30" 
+            src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2036%2030'%3E%3Cpath%20d='M10%2015h16M10%207h16M10%2023h16'%20stroke='%23333'%20stroke-width='2'%20stroke-linecap='round'/%3E%3C/svg%3E" 
+            class="menu-image menu-image-title-after" 
+            alt="" 
+            decoding="async"
+          />
+        </a>
+      </div>
+      <p class="mt-2 text-sm text-gray-600">This image has an empty alt attribute, causing it to be ignored by assistive technology (WCAG H67.2 violation).</p>
+    </div>
+
+    
   </main>
 </body>
 </html>
