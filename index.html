@@ -305,9 +305,36 @@
            from a generator that actually looked at the picture. -->
       <img id="photo-no-alt" src="photo-01.jpg" width="800" height="600" class="mt-4 max-w-full rounded">
     </section>
-    <img id="photo-no-alt1" src="1.webp" width="800" height="600" class="mt-4 max-w-full rounded">
-    <img id="photo-no-alt2" src="2.webp" width="800" height="600" class="mt-4 max-w-full rounded">
-    <img id="photo-no-alt3" src="3.webp" width="800" height="600" class="mt-4 max-w-full rounded">
+
+    <!-- Section 10b: Images with no alt text.
+         Each one lives in its own figure with its own heading, caption and dimensions.
+         The four tags used to be byte-identical apart from id and src, and the scanner
+         reported only two of them — near-identical siblings on one page are the shape its
+         instance de-duplication collapses. Keeping them structurally distinct is what makes
+         four separate issues to test against. -->
+    <section id="alt-text-section" class="test-section mb-8">
+      <h2 class="text-2xl font-semibold mb-3">Images with no alt text</h2>
+
+      <figure class="mb-6">
+        <h3 class="text-lg font-medium mb-2">Portrait, narrow</h3>
+        <img id="photo-no-alt1" src="1.webp" width="320" height="400" class="rounded border border-gray-300">
+        <figcaption class="text-sm text-gray-600 mt-1">First unlabelled image.</figcaption>
+      </figure>
+
+      <figure class="mb-6 pl-4 border-l-4 border-gray-200">
+        <h3 class="text-lg font-medium mb-2">Portrait, medium</h3>
+        <img id="photo-no-alt2" src="2.webp" width="400" height="500" class="shadow">
+        <figcaption class="text-sm text-gray-600 mt-1">Second unlabelled image.</figcaption>
+      </figure>
+
+      <figure class="mb-6">
+        <h3 class="text-lg font-medium mb-2">Portrait, wide</h3>
+        <div class="inline-block bg-gray-50 p-2">
+          <img id="photo-no-alt3" src="3.webp" width="480" height="600" class="block">
+        </div>
+        <figcaption class="text-sm text-gray-600 mt-1">Third unlabelled image.</figcaption>
+      </figure>
+    </section>
 
     <!-- Section 11: Details and Dialog -->
     <section id="interactive-section" class="test-section mb-8">
